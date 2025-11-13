@@ -4,7 +4,7 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
-  onAuthStateChanged,
+  onAuthStateChanged as fbOnAuthStateChanged,
   User,
   GoogleAuthProvider,
   signInWithPopup,
@@ -68,7 +68,7 @@ export class FirebaseAuthAdapter implements IAuthRepository {
   onAuthStateChanged(callback: (user: UserProfile | null) => void): () => void {
     // onAuthStateChanged returns its own unsubscribe function,
     // which we just return directly.
-    return onAuthStateChanged(this.auth, (user) => {
+    return fbOnAuthStateChanged(this.auth, (user) => {
       if (user) {
         callback(mapUserToUserProfile(user));
       } else {

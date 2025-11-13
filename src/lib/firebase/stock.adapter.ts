@@ -14,8 +14,9 @@ import {
   Firestore,
   CollectionReference,
 } from "firebase/firestore";
-
+//import db instance
 import { db } from "./config"; // Import the initialized Firestore service
+//import contract (interface)
 import { IStockRepository, StockHolding } from "@/types";
 
 // Helper function to map Firestore document to StockHolding interface
@@ -38,7 +39,6 @@ const mapSnapshotToStockHoldings = (
 ): StockHolding[] => {
   return snapshot.docs.map(mapDocToStockHolding);
 };
-
 export class FirebaseStockAdapter implements IStockRepository {
   private db: Firestore; // <-- 1. Declare the dependency
   private stocksCol: CollectionReference<DocumentData>; // <-- 2. Declare the collection
@@ -95,6 +95,7 @@ export class FirebaseStockAdapter implements IStockRepository {
     callback: (portfolio: StockHolding[]) => void
   ): () => void {
     const q = query(this.stocksCol, where("userId", "==", userId));
+    //onSnapshot returns an unsubscribe function
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const portfolio = mapSnapshotToStockHoldings(querySnapshot);
       callback(portfolio);
