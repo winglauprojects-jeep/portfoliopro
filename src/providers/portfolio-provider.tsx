@@ -6,6 +6,7 @@ import React, {
   createContext,
   useContext,
   useState,
+  useMemo,
   useEffect,
   ReactNode,
 } from "react";
@@ -16,6 +17,7 @@ import { useAuth } from "./auth-provider"; // We need this to get the user's ID
 // 1. Define the shape of the context data
 interface PortfolioContextType {
   portfolio: StockHolding[];
+  accounts: string[];
   loading: boolean;
   stockService: IStockRepository;
 }
@@ -64,9 +66,15 @@ export const PortfolioProvider = ({ children }: PortfolioProviderProps) => {
     }
   }, [stockService, user]); // Effect depends on the stockService instance and user
 
+  const accounts = useMemo(() => {
+    const accountSet = new Set(portfolio.map((item) => item.accountName));
+    return Array.from(accountSet).sort();
+  }, [portfolio]);
+
   const value = {
     stockService,
     portfolio,
+    accounts,
     loading,
   };
   return (
@@ -74,4 +82,12 @@ export const PortfolioProvider = ({ children }: PortfolioProviderProps) => {
       {!loading && children}
     </PortfolioContext.Provider>
   );
+};
+// 4. Create a custom hook for easy access
+export const usePortfolio = (): PortfolioContextType => {
+  const context = useContext(PortfolioContext);
+  if (context === undefined) {
+    throw new Error("usePortfolio must be used within a PortfolioProvider");
+  }
+  return context;
 };

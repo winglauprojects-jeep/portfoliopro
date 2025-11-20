@@ -21,14 +21,20 @@ import { IStockRepository, StockHolding } from "@/types";
 
 // Helper function to map Firestore document to StockHolding interface
 const mapDocToStockHolding = (doc: DocumentData): StockHolding => {
-  return {
+  const data = doc.data();
+
+  // 👇 ADD THIS LOG
+  console.log("RAW FIRESTORE DATA:", doc.id, data);
+  let temp = {
     id: doc.id,
-    userId: doc.userId,
-    accountName: doc.accountName,
-    tickerSymbol: doc.tickerSymbol,
-    shareCount: doc.shareCount,
-    averagePurchasePrice: doc.averagePurchasePrice,
+    userId: data.userId,
+    accountName: data.accountName,
+    tickerSymbol: data.tickerSymbol,
+    shareCount: data.shareCount,
+    averagePurchasePrice: data.averagePurchasePrice,
   };
+  //   console.log("MAPPED STOCK HOLDING:", temp);
+  return temp;
 };
 
 /**
