@@ -81,3 +81,25 @@ export interface IStorageService {
   uploadFile(file: File, path: string): Promise<string>; // Returns download URL
   getDownloadUrl(path: string): Promise<string>;
 }
+
+/**
+ * Defines the contract for managing stock sources (notes, files, URLs).
+ */
+export interface ISourceRepository {
+  addSource(source: Omit<StockSource, "id">): Promise<StockSource>;
+  getSourcesForStock(
+    userId: string,
+    tickerSymbol: string
+  ): Promise<StockSource[]>;
+  deleteSource(sourceId: string): Promise<void>;
+
+  // 2. Moderation (For the Admin feature later)
+  // We will fetch all sources where status == 'pending'
+  getPendingSources(): Promise<StockSource[]>;
+
+  // Approve or Reject a source
+  updateSourceStatus(
+    sourceId: string,
+    status: "approved" | "rejected"
+  ): Promise<void>;
+}

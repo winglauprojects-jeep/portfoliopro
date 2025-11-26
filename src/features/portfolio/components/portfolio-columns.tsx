@@ -1,5 +1,11 @@
 "use client";
 
+// Define the shape of your "glove box"
+interface PortfolioTableMeta {
+  deleteStock: (id: string) => void;
+  addSource: (stock: StockHolding) => void;
+  viewSources: (stock: StockHolding) => void; // <-- Add this
+}
 import { ColumnDef } from "@tanstack/react-table";
 import { StockHolding } from "@/types";
 import { Button } from "@/components/ui/button";
@@ -14,11 +20,11 @@ import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 
 // This is the "Delete" action handler. We'll pass the
 // actual delete function from our component via the `meta` prop.
-const handleDelete = (stockId: string, meta: any) => {
-  if (meta?.deleteStock) {
-    meta.deleteStock(stockId);
-  }
-};
+// const handleDelete = (stockId: string, meta: any) => {
+//   if (meta?.deleteStock) {
+//     meta.deleteStock(stockId);
+//   }
+// };
 
 export const columns: ColumnDef<StockHolding>[] = [
   {
@@ -59,6 +65,7 @@ export const columns: ColumnDef<StockHolding>[] = [
     id: "actions",
     cell: ({ row, table }) => {
       const stock = row.original;
+      const meta = table.options.meta as PortfolioTableMeta | undefined;
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -69,9 +76,16 @@ export const columns: ColumnDef<StockHolding>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => handleDelete(stock.id, table.options.meta)}
-            >
+
+            <DropdownMenuItem onClick={() => meta?.addSource(stock)}>
+              Add Source
+            </DropdownMenuItem>
+
+            {/* 2. Add the View Sources Item */}
+            <DropdownMenuItem onClick={() => meta?.viewSources(stock)}>
+              View Sources
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => meta?.deleteStock(stock.id)}>
               Delete Holding
             </DropdownMenuItem>
           </DropdownMenuContent>

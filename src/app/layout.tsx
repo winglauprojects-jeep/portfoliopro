@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { AuthProvider } from "@/providers/auth-provider";
 import { PortfolioProvider } from "@/providers/portfolio-provider";
+import { SourcesProvider } from "@/providers/sources-provider";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
@@ -32,7 +33,7 @@ export default function RootLayout({
       >
         <AuthProvider>
           <PortfolioProvider>
-            {children}
+            <SourcesProvider>{children}</SourcesProvider>
             <Toaster />
           </PortfolioProvider>
         </AuthProvider>
