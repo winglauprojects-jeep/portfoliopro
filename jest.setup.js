@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
+import "whatwg-fetch";
 import "@testing-library/jest-dom";
 import { TextEncoder, TextDecoder } from "util";
 
