@@ -21,7 +21,7 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "types": ["node", "jest"] // 👈 ADD THIS LINE
+    "types": ["node", "jest", "@testing-library/jest-dom"] // 👈 ADD THIS LINE
   },
   "include": [
     "next-env.d.ts",
