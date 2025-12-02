@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+// import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
 import { useAuth } from "@/providers/auth-provider";
@@ -36,12 +36,12 @@ interface AddSourceDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-// Define schemas for each type
-const noteSchema = z.object({
-  content: z.string().min(1, "Note cannot be empty"),
-});
-const urlSchema = z.object({ content: z.string().url("Must be a valid URL") });
-// File schema is tricky, we handle file validation manually in the component
+// // Define schemas for each type
+// const noteSchema = z.object({
+//   content: z.string().min(1, "Note cannot be empty"),
+// });
+// const urlSchema = z.object({ content: z.string().url("Must be a valid URL") });
+// // File schema is tricky, we handle file validation manually in the component
 
 export function AddSourceDialog({
   stock,
@@ -68,7 +68,7 @@ export function AddSourceDialog({
 
     try {
       let finalContent = "";
-      let type = activeTab;
+      const type = activeTab;
 
       // 1. Handle NOTE
       if (activeTab === "note") {

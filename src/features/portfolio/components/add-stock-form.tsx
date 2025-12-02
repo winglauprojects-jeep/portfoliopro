@@ -203,7 +203,7 @@ export default function AddStockForm() {
                               }}
                             >
                               <Plus className="h-4 w-4" />
-                              Create "{searchQuery}"
+                              Create &quot;{searchQuery}&quot;
                             </div>
                           </CommandEmpty>
 

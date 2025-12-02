@@ -25,7 +25,7 @@ const mapDocToStockHolding = (doc: DocumentData): StockHolding => {
 
   // 👇 ADD THIS LOG
   console.log("RAW FIRESTORE DATA:", doc.id, data);
-  let temp = {
+  const temp = {
     id: doc.id,
     userId: data.userId,
     accountName: data.accountName,

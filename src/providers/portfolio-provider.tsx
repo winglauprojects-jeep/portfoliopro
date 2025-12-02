@@ -46,9 +46,11 @@ export const PortfolioProvider = ({ children }: PortfolioProviderProps) => {
   useEffect(() => {
     if (!user) {
       // If no user, clear portfolio and stop loading
-      setPortfolio([]);
-      setLoading(false);
-      return;
+      setTimeout(() => {
+        setPortfolio([]);
+        setLoading(false);
+        return;
+      }, 0);
     } else {
       setLoading(true);
 
