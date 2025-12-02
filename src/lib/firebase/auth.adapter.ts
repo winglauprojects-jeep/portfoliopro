@@ -38,7 +38,7 @@ export class FirebaseAuthAdapter implements IAuthRepository {
         password
       );
       return mapUserToUserProfile(userCredential.user);
-    } catch (error) {
+    } catch (_error) {
       throw new Error("Firebase sign-up failed");
     }
   }
@@ -50,14 +50,14 @@ export class FirebaseAuthAdapter implements IAuthRepository {
         password
       );
       return mapUserToUserProfile(userCredential.user);
-    } catch (error) {
+    } catch (_error) {
       throw new Error("Firebase sign-up failed");
     }
   }
   async signOut(): Promise<void> {
     try {
       await signOut(this.auth);
-    } catch (error) {
+    } catch (_error) {
       throw new Error("Firebase sign-out failed");
     }
   }
@@ -82,7 +82,7 @@ export class FirebaseAuthAdapter implements IAuthRepository {
     try {
       const userCredential = await signInWithPopup(this.auth, provider);
       return mapUserToUserProfile(userCredential.user);
-    } catch (error) {
+    } catch (_error) {
       throw new Error("Google sign-in failed.");
     }
   }

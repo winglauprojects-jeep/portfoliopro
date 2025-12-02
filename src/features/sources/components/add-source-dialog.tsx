@@ -62,7 +62,10 @@ export function AddSourceDialog({
     },
   });
 
-  const onSubmit = async (values: any) => {
+  const onSubmit = async (values: {
+    noteContent?: string;
+    urlContent?: string;
+  }) => {
     if (!user) return;
     setIsSubmitting(true);
 
@@ -139,7 +142,7 @@ export function AddSourceDialog({
 
         <Tabs
           value={activeTab}
-          onValueChange={(v) => setActiveTab(v as any)}
+          onValueChange={(v) => setActiveTab(v as "note" | "file" | "url")}
           className="w-full"
         >
           <TabsList className="grid w-full grid-cols-3">

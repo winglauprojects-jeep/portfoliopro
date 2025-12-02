@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/providers/auth-provider";
 import { useRouter } from "next/navigation";
-import { use, useEffect } from "react";
+import { useEffect } from "react";
 export default function RequireAuth({
   children,
 }: {

@@ -9,7 +9,7 @@ import { useState } from "react";
 import { AddSourceDialog } from "@/features/sources/components/add-source-dialog";
 import { SourceViewerDialog } from "@/features/sources/components/source-viewer-dialog";
 import { StockHolding } from "@/types";
-import { vi } from "zod/v4/locales";
+// import { vi } from "zod/v4/locales";
 
 export function PortfolioTable() {
   const { portfolio, loading, stockService } = usePortfolio();
