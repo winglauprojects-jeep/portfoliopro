@@ -89,7 +89,7 @@ export function AddSourceDialog({
         // Simple URL validation
         try {
           z.string().url().parse(values.urlContent);
-          finalContent = values.urlContent;
+          finalContent = values.urlContent || "";
         } catch {
           toast.error("Please enter a valid URL");
           setIsSubmitting(false);
