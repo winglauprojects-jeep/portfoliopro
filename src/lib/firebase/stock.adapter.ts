@@ -59,7 +59,10 @@ export class FirebaseStockAdapter implements IStockRepository {
     try {
       const docRef = await addDoc(this.stocksCol, stock);
       const docSnap = await getDoc(docRef);
-      return mapDocToStockHolding({ id: docSnap.id, ...stock });
+      return {
+        ...stock, // We already have the data here!
+        id: docRef.id, // We grab the ONE thing we needed from the reference
+      };
     } catch (error) {
       console.error("Error adding stock:", error);
       throw new Error("Firebase add stock failed");

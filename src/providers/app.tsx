@@ -1,9 +1,9 @@
 "use client";
 
 import React from "react";
-import { AuthProvider } from "./auth-provider";
-import { PortfolioProvider } from "./portfolio-provider";
-import { SourcesProvider } from "./sources-provider";
+import { AuthProvider } from "@/providers/auth-provider";
+import { PortfolioProvider } from "@/providers/portfolio-provider";
+import { SourcesProvider } from "@/providers/sources-provider";
 import { Toaster } from "@/components/ui/sonner";
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
