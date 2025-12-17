@@ -1,89 +1,107 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/providers/auth-provider";
-import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
-import { LogOut, User } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-
+import { Button } from "@/components/ui/button"; // Assuming you have this
+import { LogOut, User as UserIcon, ChevronDown } from "lucide-react"; // Icons help UI
+import { auth } from "@/lib/firebase/config"; // To handle logout
+import Image from "next/image";
 export function Header() {
-  const { user, authService } = useAuth();
-  const router = useRouter();
+  const { user, isAdmin, loading } = useAuth();
 
-  const handleLogout = async () => {
-    try {
-      await authService.signOut();
-      toast.success("Logged out successfully");
-      router.push("/login");
-    } catch (error) {
-      toast.error("Failed to logout");
-    }
+  // Handle Logout
+  const handleSignOut = async () => {
+    await auth.signOut();
+    window.location.href = "/";
   };
 
+  // We no longer return null for hidden paths! The header is always here.
+
   return (
-    <header className="border-b bg-white">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        {/* Left Side: Logo & Nav */}
+    <header className="border-b bg-white sticky top-0 z-50">
+      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+        {/* --- LEFT SIDE: Brand & Public Links --- */}
         <div className="flex items-center gap-8">
           <Link href="/" className="text-xl font-bold text-slate-900">
-            PortfolioPro
+            <Image
+              src="/logo.png"
+              alt="ActivePath Investing Logo"
+              width={110}
+              height={25}
+              className="object-contain" // This keeps the aspect ratio correct
+              priority // This loads the logo immediately since it's above the fold
+            />
           </Link>
 
-          <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600">
-            <Link href="/" className="hover:text-slate-900 transition-colors">
-              Dashboard
-            </Link>
+          <nav className="hidden md:flex gap-6 text-sm font-medium text-slate-600">
             <Link
-              href="/settings"
+              href="/explore"
               className="hover:text-slate-900 transition-colors"
             >
-              Settings
+              Explore
             </Link>
+
+            {/* Show Dashboard only if logged in */}
+            {user && (
+              <Link
+                href="/dashboard"
+                className="hover:text-slate-900 transition-colors"
+              >
+                Dashboard
+              </Link>
+            )}
           </nav>
         </div>
 
-        {/* Right Side: User Menu */}
+        {/* --- RIGHT SIDE: User Actions --- */}
         <div className="flex items-center gap-4">
-          {user ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
+          {loading ? (
+            // 1. Loading State (prevent flickering)
+            <div className="h-8 w-8 rounded-full bg-slate-100 animate-pulse" />
+          ) : user ? (
+            <>
+              {/* 2. ADMIN MENU (Nested Dropdown) */}
+              {isAdmin && (
+                <div className="relative group">
+                  <button className="flex items-center gap-1 text-sm font-medium text-slate-600 hover:text-slate-900">
+                    Admin <ChevronDown size={14} />
+                  </button>
+
+                  {/* Dropdown Content (Shows on Hover) */}
+                  <div className="absolute right-0 top-full pt-2 hidden group-hover:block w-48">
+                    <div className="bg-white border rounded shadow-lg py-1 flex flex-col">
+                      <Link
+                        href="/admin/upload"
+                        className="px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                      >
+                        Upload Report
+                      </Link>
+                      {/* You can add 'Manage Users' here later */}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* 3. User Profile / Logout */}
+              <div className="flex items-center gap-4 pl-4 border-l ml-2">
+                <div className="text-xs text-right hidden sm:block">
+                  <p className="font-medium text-slate-900">My Account</p>
+                  <p className="text-slate-500">{user.email}</p>
+                </div>
+
                 <Button
                   variant="ghost"
-                  className="relative h-8 w-8 rounded-full"
+                  size="icon"
+                  onClick={handleSignOut}
+                  title="Sign Out"
                 >
-                  <User className="h-5 w-5" />
+                  <LogOut size={18} className="text-slate-500" />
                 </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end" forceMount>
-                <DropdownMenuLabel className="font-normal">
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">Account</p>
-                    <p className="text-xs leading-none text-muted-foreground">
-                      {user.email}
-                    </p>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onClick={handleLogout}
-                  className="text-red-600 cursor-pointer"
-                >
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Log out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+              </div>
+            </>
           ) : (
-            <Link href="/login">
+            // 4. Logged Out State
+            <Link href="/">
               <Button>Sign In</Button>
             </Link>
           )}
