@@ -103,3 +103,13 @@ export interface ISourceRepository {
     status: "approved" | "rejected"
   ): Promise<void>;
 }
+
+export interface IResearchReport {
+  id: string;
+  ownerId: string;
+  title: string;
+  fileUrl: string;
+  tags: string[];
+  type: "paid" | "free";
+  createdAt: Date;
+}
