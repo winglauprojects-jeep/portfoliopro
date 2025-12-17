@@ -31,7 +31,7 @@ export function getAllLearnPages(): LearnPage[] {
       const fileContents = fs.readFileSync(fullPath, "utf8");
       const extension = path.extname(fileName).toLowerCase();
       const slug = fileName.replace(/\.(mdx|html)$/, "");
-
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let data: any;
       let content: string;
 

@@ -43,7 +43,7 @@ export class FirestoreReportAdapter {
     options: GetReportsOptions = {}
   ): Promise<IResearchReport[]> {
     try {
-      let reportsCol = collection(this.db, "reports");
+      const reportsCol = collection(this.db, "reports");
 
       //building query
       let q: Query<DocumentData> = query(
