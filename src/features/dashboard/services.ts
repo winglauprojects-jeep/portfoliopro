@@ -7,7 +7,7 @@ export interface IMarketStatus {
   topGainer: { ticker: string; change: number } | null;
   topLoser: { ticker: string; change: number } | null;
 }
-export interface IStockPosition {
+export interface IStockPositionForAccount {
   ticker: string;
   shares: number;
   price: number;
@@ -29,7 +29,7 @@ export interface IStockSummary {
   allocation: number; // % of total portfolio
 }
 
-export interface IAccountHolding {
+export interface IAccountHoldingForAStock {
   accountName: string;
   value: number;
   shares: number;
@@ -67,7 +67,7 @@ export const getAccountSummaries = async (): Promise<IAccountSummary[]> => {
 
 export const getAccountDetails = async (
   accountId: string
-): Promise<IStockPosition[]> => {
+): Promise<IStockPositionForAccount[]> => {
   // Simulate a network delay (500ms) to test our "Loading..." UI
   await new Promise((resolve) => setTimeout(resolve, 500));
 
@@ -165,7 +165,7 @@ export const getStockSummaries = async (): Promise<IStockSummary[]> => {
 // 3. The Details Function (Which accounts hold this stock?)
 export const getStockDetails = async (
   ticker: string
-): Promise<AccountHolding[]> => {
+): Promise<IAccountHoldingForAStock[]> => {
   await new Promise((resolve) => setTimeout(resolve, 500));
 
   if (ticker === "NVDA") {

@@ -11,16 +11,15 @@ import {
 } from "recharts";
 import {
   IAccountSummary,
-  IStockPosition,
-  getAccountDetails,
   IStockSummary,
-  getStockDetails,
+  IStockPositionForAccount, // These imports might be unused now, can clean up
+  IAccountHoldingForAStock, // These imports might be unused now, can clean up
 } from "../services";
+import { generateColors } from "@/lib/utils";
+import PortfolioDetailChart from "./PortfolioDetailChart";
 
 // Master Chart Colors (Blueish)
 const COLORS_MASTER = ["#1e3a8a", "#3b82f6", "#60a5fa", "#9ca3af"];
-// Detail Chart Colors (Greenish to differentiate)
-const COLORS_DETAIL = ["#059669", "#10b981", "#34d399", "#6ee7b7"];
 
 interface Props {
   accountData: IAccountSummary[];
@@ -28,89 +27,56 @@ interface Props {
 }
 
 export function PortfolioDistribution({ accountData, stockData }: Props) {
-  // state to keep track of ViewMode
   const [viewMode, setViewMode] = useState<"account" | "stock">("account");
 
-  // State to track the interaction
   const [activeAccount, setActiveAccount] = useState<IAccountSummary | null>(
     accountData[0] || null
   );
   const [activeStock, setActiveStock] = useState<IStockSummary | null>(
     stockData[0] || null
   );
-  const [detailData, setDetailData] = useState<IStockPosition[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+
+  // --- REMOVED: const [isLoading, setIsLoading]... (Not needed here!) ---
 
   const data = viewMode === "account" ? accountData : stockData;
-  //   const valueFormatter = (value: number | undefined) => {
-  //     {
+
+  const currentColors = generateColors(
+    data.length,
+    viewMode === "account" ? 215 : 150
+  );
+
+  const totalValue = data.reduce((sum, item) => {
+    const val = (item as any).value || (item as any).totalValue || 0;
+    return sum + val;
+  }, 0);
+
   const valueFormatter = (
     value: number | undefined,
-    name: string,
-    props: any
+    name: string | undefined
   ) => {
-    console.log("Hidden data:", props);
-    // Safety check: if value is missing, return a placeholder
-    if (value === undefined) return ["$0", "Account"];
-    return [`$${value.toLocaleString()}`, `${props.name}`];
+    if (value === undefined) return ["$0", ""];
+    const percent = totalValue > 0 ? (value / totalValue) * 100 : 0;
+    return [
+      `$${value.toLocaleString()} (${percent.toFixed(1)}%)`,
+      name || "Unknown",
+    ];
   };
-  // The "Fetch-on-Hover" Logic
-  useEffect(() => {
-    if (!activeAccount && viewMode == "account") return;
-    if (!activeStock && viewMode == "stock") return;
-
-    const fetchAccountDetails = async () => {
-      setIsLoading(true);
-      try {
-        // Here is where we will swap for React Query later
-        const stocks = await getAccountDetails(activeAccount!.id);
-        setDetailData(stocks);
-      } catch (error) {
-        console.error("Failed to fetch details", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    if (viewMode === "account") fetchAccountDetails();
-
-    const fetchStockDetails = async () => {
-      setIsLoading(true);
-      try {
-        // Here is where we will swap for React Query later
-        const stocks = await getStockDetails(activeStock!.ticker);
-        setDetailData(stocks);
-      } catch (error) {
-        console.error("Failed to fetch details", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    if (viewMode === "stock") fetchStockDetails();
-  }, [activeAccount, activeStock]);
 
   return (
     <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col">
+      {/* View Toggle Buttons */}
       <div className="flex items-center justify-start mb-4">
-        {/* <h3 className="text-lg font-bold text-slate-800">
-          Allocation by {viewMode === "account" ? "Account" : "Ticker"}
-        </h3> */}
-
         <div className="flex bg-slate-100 p-1 rounded-lg">
-          {/* Account Button */}
           <button
             onClick={() => setViewMode("account")}
             className={`px-3 py-1 text-sm font-medium rounded-md transition-all ${
               viewMode === "account"
-                ? "bg-white text-slate-800 shadow-sm" // Active View
-                : "text-slate-500 hover:text-slate-700" // Inactive View
+                ? "bg-white text-slate-800 shadow-sm"
+                : "text-slate-500 hover:text-slate-700"
             }`}
           >
             Account
           </button>
-
-          {/* Ticker Button */}
           <button
             onClick={() => setViewMode("stock")}
             className={`px-3 py-1 text-sm font-medium rounded-md transition-all ${
@@ -123,8 +89,9 @@ export function PortfolioDistribution({ accountData, stockData }: Props) {
           </button>
         </div>
       </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 h-[400px]">
-        {/* --- LEFT SIDE: MASTER (Accounts) --- */}
+        {/* --- LEFT SIDE: MASTER --- */}
         <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col">
           <h3 className="text-lg font-bold text-slate-800 mb-4">
             Allocation by {viewMode === "account" ? "Account" : "Ticker"}
@@ -143,14 +110,15 @@ export function PortfolioDistribution({ accountData, stockData }: Props) {
                   nameKey={viewMode === "account" ? "name" : "ticker"}
                   onMouseEnter={(_, index) => {
                     if (viewMode === "account") {
-                      const account = data[index] as IAccountSummary;
-                      if (account) setActiveAccount(account);
+                      setActiveAccount(data[index] as IAccountSummary);
                     } else {
-                      const stock = data[index] as StockSummary;
-                      if (stock) setActiveStock(stock);
+                      setActiveStock(data[index] as IStockSummary);
                     }
                   }}
                   cursor="pointer"
+                  label={({ percent }) =>
+                    `${((percent || 0) * 100).toFixed(0)}%`
+                  }
                 >
                   {data.map((entry, index) => {
                     const isSelected =
@@ -162,7 +130,7 @@ export function PortfolioDistribution({ accountData, stockData }: Props) {
                     return (
                       <Cell
                         key={`cell-${index}`}
-                        fill={COLORS_MASTER[index % COLORS_MASTER.length]}
+                        fill={currentColors[index % COLORS_MASTER.length]}
                         stroke={isSelected ? "#000" : "none"}
                         strokeWidth={2}
                       />
@@ -174,18 +142,16 @@ export function PortfolioDistribution({ accountData, stockData }: Props) {
                   verticalAlign="bottom"
                   height={36}
                   iconType="circle"
+                  // Added rudimentary hover logic for Legend
                   onMouseEnter={(e) => {
-                    // Find the account that matches the legend item hovered
-                    if (viewMode === "account") {
-                      const account = data.find(
-                        (d) => (d as IAccountSummary).name === e.value
-                      );
-                      setActiveAccount(account as IAccountSummary);
-                    } else {
-                      const stock = data.find(
-                        (d) => (d as IStockSummary).ticker === e.value
-                      );
-                      setActiveStock(stock as IStockSummary);
+                    const item = data.find(
+                      (d: any) =>
+                        (viewMode === "account" ? d.name : d.ticker) === e.value
+                    );
+                    if (item) {
+                      viewMode === "account"
+                        ? setActiveAccount(item as IAccountSummary)
+                        : setActiveStock(item as IStockSummary);
                     }
                   }}
                 />
@@ -194,58 +160,27 @@ export function PortfolioDistribution({ accountData, stockData }: Props) {
           </div>
         </div>
 
-        {/* --- RIGHT SIDE: DETAIL (Stocks) --- */}
+        {/* --- RIGHT SIDE: DETAIL --- */}
         <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col relative">
+          {/* FIXED HEADER LOGIC: Cleaner ternary to prevent overlapping text */}
           <h3 className="text-lg font-bold text-slate-800 mb-4">
-            {activeAccount && viewMode === "account"
-              ? `${activeAccount.name} Holdings`
-              : "Select an Account"}
-            {activeStock && viewMode === "stock"
+            {viewMode === "account"
+              ? activeAccount
+                ? `${activeAccount.name} Holdings`
+                : "Select an Account"
+              : activeStock
               ? `${activeStock.ticker} Details`
               : "Select a Ticker"}
           </h3>
 
-          {/* Loading Spinner Overlay */}
-          {isLoading && (
-            <div className="absolute inset-0 bg-white/80 z-10 flex items-center justify-center rounded-xl">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            </div>
-          )}
+          {/* --- REMOVED: Loading Spinner (Moved to child) --- */}
 
           <div className="flex-1 min-h-0">
-            {detailData.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={detailData as any[]}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={80}
-                    paddingAngle={5}
-                    dataKey="value"
-                    nameKey="ticker"
-                  >
-                    {detailData.map((entry, index) => (
-                      <Cell
-                        key={`cell-detail-${index}`}
-                        fill={COLORS_DETAIL[index % COLORS_DETAIL.length]}
-                      />
-                    ))}
-                  </Pie>
-                  <Tooltip formatter={valueFormatter} />
-                  <Legend
-                    verticalAlign="bottom"
-                    height={36}
-                    iconType="circle"
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="h-full flex items-center justify-center text-slate-400">
-                No holdings data available
-              </div>
-            )}
+            <PortfolioDetailChart
+              viewMode={viewMode}
+              activeAccount={activeAccount}
+              activeStock={activeStock}
+            />
           </div>
         </div>
       </div>
